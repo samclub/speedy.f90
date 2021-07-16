@@ -214,5 +214,5 @@ contains
                 tdt(:,:,k) = tdt(:,:,k) + xc(k,k1) * divdt(:,:,k1)
             end do
         end do
-    end
+    end subroutine
 end module

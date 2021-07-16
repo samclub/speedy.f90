@@ -114,7 +114,7 @@ contains
         dfabs(:,:,kx) = dfabs(:,:,kx) - corlw
         fsfcd = fsfcd + corlw
 
-    end
+    end subroutine
 
     !> Compute the absorption of upward long-wave radiation fluxes
     subroutine get_upward_longwave_rad_fluxes(ta, ts, fsfcd, fsfcu, fsfc, ftop, dfabs)
@@ -191,7 +191,7 @@ contains
         do jb = 1, nband
             ftop = ftop + flux(:,:,jb)
         end do
-    end
+    end subroutine
 
     !> Compute energy fractions in longwave bands as a function of temperature
     subroutine radset
@@ -217,5 +217,5 @@ contains
                 fband(jtemp,jb) = fband(320,jb)
             end do
         end do
-    end
+    end subroutine
 end module

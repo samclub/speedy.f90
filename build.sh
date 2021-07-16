@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export NETCDF=/share/kkraid/zhaos/apps/netcdf-intel-mpi
+
 # Check that NetCDF variable is set
 if [ -z "$NETCDF" ]; then
     echo "\$NETCDF variable not set"
@@ -8,7 +10,7 @@ if [ -z "$NETCDF" ]; then
 fi
 
 # Name of makefile
-MAKE=gfortran.makefile
+MAKE=makefile.intel
 
 # Define directory names
 ROOT=`pwd`

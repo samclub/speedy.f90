@@ -77,7 +77,7 @@ contains
         end do
 
         if(a(n,n).eq.0.) a(n,n)=tiny
-    end
+    end subroutine
 
     subroutine lubksb(a,n,np,indx,b)
         real(p), intent(inout) :: a(np,np), b(n)
@@ -110,7 +110,7 @@ contains
             end if
             b(i)=sum/a(i,i)
         end do
-    end
+    end subroutine
 
     subroutine inv(a,y,indx,n)
         real(p), intent(inout) :: a(n,n), y(n,n)
@@ -130,5 +130,5 @@ contains
         do i=1,n
             call lubksb(a,n,n,indx,y(1,i))
         end do
-    end
+    end subroutine
 end module

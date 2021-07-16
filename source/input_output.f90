@@ -59,7 +59,7 @@ contains
 
         ! Fix undefined values
         where (field <= -999) field = 0.0
-    end
+    end function
 
     !> Loads the given 2D field at the given month from the given boundary file
     !  of a given length.
@@ -89,14 +89,17 @@ contains
 
         ! Fix undefined values
         where (field <= -999) field = 0.0
-    end
+    end function
 
     !> Writes a snapshot of all prognostic variables to a NetCDF file.
     subroutine output(timestep, vor, div, t, ps, tr, phi)
         use geometry, only: radang, fsg
-        use physical_constants, only: p0, grav
+        use physical_constants, only: p0, grav, alhc
+
         use date, only: model_datetime, start_datetime
         use spectral, only: spec_to_grid, uvspec
+        use auxiliaries
+        ! precnv, precls, snowcv, snowls, cbmf, tsr, ssrd, ssr, slrd, slr, olr, slru, ustr, vstr, shf, lhf, hfluxn
 
         integer, intent(in) :: timestep           !! The time step that is being written
         complex(p), intent(in) :: vor(mx,nx,kx,2)    !! Vorticity
@@ -111,11 +114,18 @@ contains
         real(p), dimension(ix,il)     :: ps_grid
         real(sp), dimension(ix,il,kx) :: u_out, v_out, t_out, q_out, phi_out
         real(sp), dimension(ix,il)    :: ps_out
+        
+        real(sp), dimension(ix,il)    :: precnv_out, precls_out, cbmf_out 
+        real(sp), dimension(ix,il)    :: ssr_out, slr_out, olr_out, shf_out, lhf_out, hfluxn_out 
+        real(sp), dimension(ix,il)    :: ustr_out, vstr_out
+
         character(len=15) :: file_name = 'yyyymmddhhmm.nc'
         character(len=32) :: time_template = 'hours since yyyy-mm-dd hh:mm:0.0'
         integer :: k, ncid
         integer :: timedim, latdim, londim, levdim
         integer :: timevar, latvar, lonvar, levvar, uvar, vvar, tvar, qvar, phivar, psvar
+
+        integer :: precnvvar, preclsvar, cbmfvar, ssrvar, slrvar, olrvar, shfvar, lhfvar, hfluxnvar, ustrvar, vstrvar
 
         ! Construct file_name
         write (file_name(1:4),'(i4.4)') model_datetime%year
@@ -163,14 +173,54 @@ contains
         call check(nf90_def_var(ncid, "q", nf90_real4, (/ londim, latdim, levdim, timedim /), qvar))
         call check(nf90_put_att(ncid, qvar, "long_name", "specific_humidity"))
         call check(nf90_put_att(ncid, qvar, "units", "1"))
-
-        call check(nf90_def_var(ncid, "phi", nf90_real4, (/ londim, latdim, levdim, timedim /), &
-            & phivar))
+        
+        call check(nf90_def_var(ncid, "phi", nf90_real4, (/ londim, latdim, levdim, timedim /), phivar))
         call check(nf90_put_att(ncid, phivar, "long_name", "geopotential_height"))
         call check(nf90_put_att(ncid, phivar, "units", "m"))
+        
         call check(nf90_def_var(ncid, "ps", nf90_real4, (/ londim, latdim, timedim /), psvar))
         call check(nf90_put_att(ncid, psvar, "long_name", "surface_air_pressure"))
         call check(nf90_put_att(ncid, psvar, "units", "Pa"))
+
+        ! add diganostic variables
+        call check(nf90_def_var(ncid, "precnv", nf90_real4, (/ londim, latdim, timedim /), precnvvar))
+        call check(nf90_put_att(ncid, precnvvar, "long_name", "Convective precipitation"))
+        call check(nf90_put_att(ncid, precnvvar, "units", "g/(m^2 s)"))
+        call check(nf90_def_var(ncid, "precls", nf90_real4, (/ londim, latdim, timedim /), preclsvar))
+        call check(nf90_put_att(ncid, preclsvar, "long_name", "Large-scale precipitation"))
+        call check(nf90_put_att(ncid, preclsvar, "units", "g/(m^2 s)"))
+        call check(nf90_def_var(ncid, "cbmf", nf90_real4, (/ londim, latdim, timedim /), cbmfvar))
+        call check(nf90_put_att(ncid, cbmfvar, "long_name", "Cloud-base mass flux"))
+        call check(nf90_put_att(ncid, cbmfvar, "units", ""))
+        
+        call check(nf90_def_var(ncid, "ssr", nf90_real4, (/ londim, latdim, timedim /), ssrvar))
+        call check(nf90_put_att(ncid, ssrvar, "long_name", "Surface shortwave radiation (net downward)"))
+        call check(nf90_put_att(ncid, ssrvar, "units", "W/m^2"))
+        call check(nf90_def_var(ncid, "slr", nf90_real4, (/ londim, latdim, timedim /), slrvar))
+        call check(nf90_put_att(ncid, slrvar, "long_name", "Surface longwave radiation (net upward)"))
+        call check(nf90_put_att(ncid, slrvar, "units", "W/m^2"))
+        call check(nf90_def_var(ncid, "shf", nf90_real4, (/ londim, latdim, timedim /), shfvar))
+        call check(nf90_put_att(ncid, shfvar, "long_name", "Sensible heat flux"))
+        call check(nf90_put_att(ncid, shfvar, "units", "W/m^2"))
+        call check(nf90_def_var(ncid, "lhf", nf90_real4, (/ londim, latdim, timedim /), lhfvar))
+        call check(nf90_put_att(ncid, lhfvar, "long_name", "Latent heat flux"))
+        call check(nf90_put_att(ncid, lhfvar, "units", "W/m^2"))
+
+        call check(nf90_def_var(ncid, "hfluxn", nf90_real4, (/ londim, latdim, timedim /), hfluxnvar))
+        call check(nf90_put_att(ncid, hfluxnvar, "long_name", "Net heat flux into surface"))
+        call check(nf90_put_att(ncid, hfluxnvar, "units", "W/m^2"))
+        
+        call check(nf90_def_var(ncid, "olr", nf90_real4, (/ londim, latdim, timedim /), olrvar))
+        call check(nf90_put_att(ncid, olrvar, "long_name", "Outgoing longwave radiation (upward)"))
+        call check(nf90_put_att(ncid, olrvar, "units", "W/m^2"))
+
+        
+        call check(nf90_def_var(ncid, "ustr", nf90_real4, (/ londim, latdim, timedim /), ustrvar))
+        call check(nf90_put_att(ncid, ustrvar, "long_name", "Zonal wind stress"))
+        call check(nf90_put_att(ncid, ustrvar, "units", "N/m^2"))
+        call check(nf90_def_var(ncid, "vstr", nf90_real4, (/ londim, latdim, timedim /), vstrvar))
+        call check(nf90_put_att(ncid, vstrvar, "long_name", "Meridional wind stress"))
+        call check(nf90_put_att(ncid, vstrvar, "units", "N/m^2"))
 
         call check(nf90_enddef(ncid))
 
@@ -204,7 +254,21 @@ contains
         q_out = real(q_grid*1.0e-3, sp) ! kg/kg
         phi_out = real(phi_grid/grav, sp)   ! m
         ps_out = real(p0*exp(ps_grid), sp)! Pa
+        
+        precnv_out = real(precnv, sp)
+        precls_out = real(precls, sp)
+        cbmf_out   = real(cbmf, sp)
 
+        ssr_out = real(ssr, sp)
+        slr_out = real(slr, sp)
+        olr_out = real(olr, sp)
+        shf_out    = real(shf(:, :, 3), sp)
+        lhf_out    = real(evap(:, :, 3)*alhc, sp)
+        hfluxn_out = real(hfluxn(:, :, 3), sp)
+
+        ustr_out   = real(ustr(:, :, 3), sp)
+        vstr_out   = real(vstr(:, :, 3), sp)
+        
         ! Write prognostic variables to file
         call check(nf90_put_var(ncid, uvar, u_out, (/ 1, 1, 1, 1 /)))
         call check(nf90_put_var(ncid, vvar, v_out, (/ 1, 1, 1, 1 /)))
@@ -212,6 +276,18 @@ contains
         call check(nf90_put_var(ncid, qvar, q_out, (/ 1, 1, 1, 1 /)))
         call check(nf90_put_var(ncid, phivar, phi_out, (/ 1, 1, 1, 1 /)))
         call check(nf90_put_var(ncid, psvar, ps_out, (/ 1, 1, 1 /)))
+
+        call check(nf90_put_var(ncid, precnvvar, precnv_out, (/ 1, 1, 1 /)))
+        call check(nf90_put_var(ncid, preclsvar, precls_out, (/ 1, 1, 1 /)))
+        call check(nf90_put_var(ncid, cbmfvar, cbmf_out, (/ 1, 1, 1 /)))
+        call check(nf90_put_var(ncid, ssrvar, ssr_out, (/ 1, 1, 1 /)))
+        call check(nf90_put_var(ncid, slrvar, slr_out, (/ 1, 1, 1 /)))
+        call check(nf90_put_var(ncid, olrvar, olr_out, (/ 1, 1, 1 /)))
+        call check(nf90_put_var(ncid, shfvar, shf_out, (/ 1, 1, 1 /)))
+        call check(nf90_put_var(ncid, lhfvar, lhf_out, (/ 1, 1, 1 /)))
+        call check(nf90_put_var(ncid, hfluxnvar, hfluxn_out, (/ 1, 1, 1 /)))
+        call check(nf90_put_var(ncid, ustrvar, ustr_out, (/ 1, 1, 1 /)))
+        call check(nf90_put_var(ncid, vstrvar, vstr_out, (/ 1, 1, 1 /)))
 
         call check(nf90_close(ncid))
     end subroutine

@@ -36,7 +36,7 @@ contains
 
         wvi(kx,1) = 0.
         wvi(kx,2) = (log(0.99)-sigl(kx))*wvi(kx-1,1)
-    end
+    end subroutine
 
     !> Compute physical parametrization tendencies for u, v, t, q and add them
     !  to the dynamical grid-point tendencies
@@ -220,5 +220,5 @@ contains
                         & + qtend_dyn(:,:,k)
             end do
         end if
-    end
+    end subroutine
 end module

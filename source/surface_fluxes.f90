@@ -65,7 +65,7 @@ contains
         real(p), intent(out) :: shf(ix,il,3)  !! Sensible heat flux
         real(p), intent(out) :: evap(ix,il,3) !! Evaporation
         real(p), intent(out) :: slru(ix,il,3) !! Upward flux of long-wave radiation at the surface
-        real(p), intent(out) :: hfluxn(ix,il,2) !! Net downward heat flux
+        real(p), intent(out) :: hfluxn(ix,il,3) !! Net downward heat flux
         real(p), intent(out) :: tsfc(ix,il)   !! Surface temperature
         real(p), intent(out) :: tskin(ix,il)  !! Skin surface temperature
         real(p), intent(out) :: u0(ix,il) !! Near-surface u-wind
@@ -288,12 +288,13 @@ contains
             shf(:,:,3)  = shf(:,:,2)  + fmask*(shf(:,:,1)  - shf(:,:,2))
             evap(:,:,3) = evap(:,:,2) + fmask*(evap(:,:,1) - evap(:,:,2))
             slru(:,:,3) = slru(:,:,2) + fmask*(slru(:,:,1) - slru(:,:,2))
+            hfluxn(:,:,3) = hfluxn(:,:,2) + fmask*(hfluxn(:,:,1) - hfluxn(:,:,2))
 
             tsfc  = tsea      + fmask*(stl_am - tsea)
             tskin = tsea      + fmask*(tskin  - tsea)
             t0    = t1(:,:,2) + fmask*(t1(:,:,1) - t1(:,:,2))
         end if
-    end
+    end subroutine
 
     ! Compute orographic factor for land surface drag
     ! Input:   phi0 = surface geopotential
@@ -306,5 +307,5 @@ contains
         rhdrag = 1.0/(grav*hdrag)
 
         forog = 1.0 + rhdrag*(1.0 - exp(-max(phi0, 0.0)*rhdrag))
-    end
+    end subroutine
 end module

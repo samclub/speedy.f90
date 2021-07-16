@@ -231,7 +231,7 @@ contains
         eps1 = epslw/(dhs(1) + dhs(2))
         stratc(:,:,1) = stratz*psa
         stratc(:,:,2) = eps1*psa
-    end
+    end subroutine
 
     !> Compute zonally-averaged fields to be used in the computation of
     !  short-wave absorption
@@ -281,7 +281,7 @@ contains
             ! Polar night cooling in the stratosphere
             stratz(:,j) = max(fs0 - fsol(:,j), 0.0)
         end do
-    end
+    end subroutine
 
     ! Average daily flux of solar radiation, from Hartmann (1994)
     subroutine solar(tyear, csol, topsr)
@@ -326,7 +326,7 @@ contains
 
             topsr(j) = csolp*fdis*(h0*sia(j)*sdecl + sh0*coa(j)*cdecl)
         end do
-    end
+    end subroutine
 
     !>  Compute cloud-top level and cloud cover
     subroutine clouds(qa,rh,precnv,precls,iptop,gse,fmask,icltop,cloudc,clstr)
@@ -407,5 +407,5 @@ contains
                 clstr(i,j) = clstr(i,j) + fmask(i,j)*(clstrl - clstr(i,j))
             end do
         end do
-    end
+    end subroutine
 end module

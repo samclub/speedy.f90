@@ -155,7 +155,7 @@ contains
                 dfqa(i,j,k) = fuq - fdq - precnv(i,j)
             end do
         end do
-    end
+    end subroutine
 
     !> Diagnose convectively unstable gridboxes
     !
@@ -242,5 +242,5 @@ contains
                 end if
             end do
         end do
-    end
+    end subroutine
 end module

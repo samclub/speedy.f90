@@ -92,5 +92,5 @@ contains
         end do
 
         precls = precls*psa
-    end
+    end subroutine
 end module

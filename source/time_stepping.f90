@@ -21,7 +21,7 @@ contains
         call step(1, 2, delt)
 
         call initialize_implicit(2*delt)
-    end
+    end subroutine
 
     ! Perform one time step starting from F(1) and F(2) and using the following scheme:
     ! Fnew = F(1) + DT * [ T_dyn(F(J2)) + T_phy(F(1)) ]
@@ -119,7 +119,7 @@ contains
         do itr = 1, ntr
             tr(:,:,:,:,itr) = step_field_3d(j1, dt, eps, tr(:,:,:,:,itr), trdt(:,:,:,itr))
         end do
-    end
+    end subroutine
 
 
 
@@ -137,7 +137,7 @@ contains
         do k = 1, kx
             output(:,:,k,:) = step_field_2d(j1, dt, eps, input(:,:,k,:), fdt(:,:,k))
         end do
-    end
+    end function
 
     function step_field_2d(j1, dt, eps, input, fdt) result(output)
         use spectral, only: trunct
@@ -164,5 +164,5 @@ contains
 
         ! Williams' innovation to the filter
         output(:,:,2) = fnew - (1.0 - wil)*eps*(output(:,:,1) - 2.0*output(:,:,j1) + fnew)
-    end
+    end function
 end module

@@ -79,7 +79,7 @@ contains
                 vddyp(m,n)  = el1*epsi(m2,n+1)/rearth
             end do
         end do
-    end
+    end subroutine
 
     function laplacian(input) result(output)
         complex(p), intent(in) :: input(mx,nx)
@@ -141,7 +141,7 @@ contains
                 psdy(m,n) = -gradym(m,n)*psi(m,n-1) + gradyp(m,n)*psi(m,n+1)
             end do
         end do
-    end
+    end subroutine
 
     subroutine vds(ucosm,vcosm,vorm,divm)
         complex(p), dimension(mx,nx) :: ucosm, vcosm
@@ -168,7 +168,7 @@ contains
                 divm(m,n) = -vddym(m,n)*vcosm(m,n-1) + vddyp(m,n)*vcosm(m,n+1) + zp(m,n)
             end do
         end do
-    end
+    end subroutine
 
     subroutine uvspec(vorm,divm,ucosm,vcosm)
         complex(p), dimension(mx,nx), intent(in) :: vorm,divm
@@ -193,7 +193,7 @@ contains
               ucosm(m,n) =  uvdym(m,n)*vorm(m,n-1) - uvdyp(m,n)*vorm(m,n+1) + zc(m,n)
             end do
         end do
-    end
+    end subroutine
 
     subroutine vdspec(ug,vg,vorm,divm,kcos)
         use geometry, only: cosgr, cosgr2
@@ -224,11 +224,11 @@ contains
         specu = grid_to_spec(ug1)
         specv = grid_to_spec(vg1)
         call vds(specu,specv,vorm,divm)
-    end
+    end subroutine
 
     subroutine trunct(vor)
         complex(p), intent(inout) :: vor(mx,nx)
 
         vor = vor * trfilt
-    end
+    end subroutine
 end module

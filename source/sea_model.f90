@@ -72,7 +72,7 @@ module sea_model
     ! 0 = climatological SST
     ! 1 = observed anomaly
     ! (active if sea_coupling_flag = 0, 1; set to 1 if sea_coupling_flag = 4)
-    integer :: sst_anomaly_coupling_flag = 1
+    integer :: sst_anomaly_coupling_flag = 0
 
 contains
     ! Initialization of sea model
@@ -248,7 +248,7 @@ contains
 
         cdsea = dmask*tdsst/(1.+dmask*tdsst)
         cdice = dmask*tdice/(1.+dmask*tdice)
-    end
+    end subroutine
 
     subroutine couple_sea_atm(day)
         use date, only: model_datetime, imont1
@@ -381,7 +381,7 @@ contains
             & next_month, 420)
 
         call forchk(bmask_s, 1, -50.0_p, 50.0_p, 0.0_p, sstan3(:,:,3))
-    end
+    end subroutine
 
     ! Purpose : Integrate slab ocean and sea-ice models for one day
     subroutine run_sea_model
@@ -441,7 +441,7 @@ contains
 
         ! Persistence of sea ice fraction
         sice_om = sicecl_ob
-    end
+    end subroutine
 
     ! Definition of ocean domains
     subroutine sea_domain(cdomain,dmask)
@@ -520,5 +520,5 @@ contains
                 end if
             end do
         end if
-    end
+    end subroutine
 end module
