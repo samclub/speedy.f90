@@ -275,7 +275,7 @@ contains
         ! 4.5 Emission of lw radiation from the surface
         !     and net heat fluxes into sea surface
         slru(:,:,2) = esbc*tsea**4.0
-        hfluxn(:,:,2) = ssrd*(1.0 - alb_s) + slrd - slru(:,:,2) + shf(:,:,2) + alhc*evap(:,:,2)
+        hfluxn(:,:,2) = ssrd*(1.0 - alb_s) + slrd - (slru(:,:,2) + shf(:,:,2) + alhc*evap(:,:,2))
 
         ! =========================================================================
         ! Weighted average of surface fluxes and temperatures according to land-sea
